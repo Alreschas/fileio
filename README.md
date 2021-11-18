@@ -1,2 +1,2 @@
-# fileio
-boostライクなI/Fのファイルセーブ&amp;ロード
+# serialization
+Boost.Serializationを真似て作ったシリアライザ
