@@ -1,5 +1,6 @@
 #include "fileio_json.hpp"
 #include <iostream>
+#include <memory>
 
 class Sample2 {
 public:
@@ -27,11 +28,17 @@ public:
     }
 
 public:
+    //int,double,stringなどの基本型の保存
     int s1_val1 = 0;
     double s1_val2 = 0;
     std::string s1_val3;
+
+    //vectorなどのコンテナ型の保存、自分で定義したクラスの保存
     std::vector<Sample2> s1_val4;
     std::map<std::string,Sample2> s1_val5;
+
+    //std::shared_ptrの保存※serializeを持っているクラスのみ可能。std::shared_ptr<double>とかは、ダメ
+    std::shared_ptr<Sample2> s1_val6;
 
 protected:
     friend class access;
@@ -42,6 +49,7 @@ protected:
         ar & ARCHIVE_NAMEDVALUE(s1_val3);
         ar & ARCHIVE_NAMEDVALUE(s1_val4);
         ar & ARCHIVE_NAMEDVALUE(s1_val5);
+        ar & ARCHIVE_NAMEDVALUE(s1_val6);
     }
 };
 
@@ -54,6 +62,7 @@ int main(){
     s1_from.s1_val3 = "test";
     s1_from.s1_val4 = {Sample2(1,2,3),Sample2(4,5,6)};
     s1_from.s1_val5 = {{"key1",Sample2(1,2,3)},{"key2",Sample2(4,5,6)}};
+    s1_from.s1_val6 = std::make_shared<Sample2>(1,2,3);
 
     //データをJson化※メイン処理
     JsonOutputArchive ar_out;
@@ -62,7 +71,7 @@ int main(){
 
 
     //Json化した文字列を表示
-    std::cout<<"exported json string:"<<std::endl;
+    std::cout<<"[exported json string]"<<std::endl;
     std::cout<<json_str<<std::endl;
     std::cout<<std::endl;
 
@@ -73,10 +82,14 @@ int main(){
 
 
     //ロードしたクラスの変数を表示
-    std::cout<<"imported class variables:"<<std::endl;
+    std::cout<<"[imported class variables]"<<std::endl;
     std::cout<<"s1_val1(int): "<<s1_to.s1_val1<<std::endl;
     std::cout<<"s1_val2(double): "<<s1_to.s1_val2<<std::endl;
     std::cout<<"s1_val3(string): "<<s1_to.s1_val3<<std::endl;
+    std::cout<<std::endl;
+    ////////////////////////////////
+
+
     std::cout<<"s1_val4(vector):"<<std::endl;
     for (auto s2 : s1_to.s1_val4) {
         std::cout<<"  s2_val1 :[ ";
@@ -85,6 +98,9 @@ int main(){
         }
         std::cout<<"]"<<std::endl;
     }
+
+    std::cout<<std::endl;
+    ////////////////////////////////
 
     std::cout << "s1_val5(map):"<< std::endl;
     for (const auto& [key, s2] : s1_to.s1_val5) {
@@ -97,5 +113,13 @@ int main(){
         std::cout<<"]"<<std::endl;
     }
 
+    std::cout<<std::endl;
+    ////////////////////////////////
+
+    std::cout<<"s1_val6(double shared_ptr): [ ";
+    for (auto val : s1_to.s1_val6->s2_val1) {
+        std::cout << val<<" ";
+    }
+    std::cout<<"]"<<std::endl;
     return 0;
 }

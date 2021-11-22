@@ -1,4 +1,4 @@
-#include "fileio_input_json.hpp"
+#include "from_json.hpp"
 
 //各型から、picojsonへの変換
 
